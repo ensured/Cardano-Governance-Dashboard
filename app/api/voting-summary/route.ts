@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Cache to store voting summary data
-const votingCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+export const revalidate = 3600;
+export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
@@ -14,20 +14,7 @@ export async function GET(request: NextRequest) {
         );
     }
 
-    // Check cache first (5 minute TTL)
-    const cached = votingCache.get(proposalId);
-    if (cached && Date.now() - cached.timestamp < cached.ttl) {
-        console.log('Cache hit for proposal:', proposalId);
-        return NextResponse.json({
-            data: cached.data,
-            proposalId,
-            cached: true,
-            timestamp: new Date().toISOString()
-        });
-    }
-
     try {
-        console.log('Fetching from Koios API for proposal:', proposalId);
         const url = `https://api.koios.rest/api/v1/proposal_voting_summary?_proposal_id=${encodeURIComponent(proposalId)}`;
 
         const response = await fetch(url, {
@@ -59,27 +46,9 @@ export async function GET(request: NextRequest) {
 
         const data = await response.json();
 
-        // Cache the result for 5 minutes
-        votingCache.set(proposalId, {
-            data,
-            timestamp: Date.now(),
-            ttl: 5 * 60 * 1000 // 5 minutes
-        });
-
-        // Clean up old cache entries periodically
-        if (votingCache.size > 100) {
-            const now = Date.now();
-            for (const [key, value] of votingCache.entries()) {
-                if (now - value.timestamp > value.ttl) {
-                    votingCache.delete(key);
-                }
-            }
-        }
-
         return NextResponse.json({
             data,
             proposalId,
-            cached: false,
             timestamp: new Date().toISOString()
         });
 
