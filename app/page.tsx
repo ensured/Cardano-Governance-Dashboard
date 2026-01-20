@@ -102,13 +102,31 @@ export default async function ProposalsPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-950">
+
       <main className="flex-grow pt-16 px-5">
+
         <div className="max-w-7xl mx-auto py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-zinc-100 mb-2">Governance Proposals</h1>
-            <p className="text-zinc-400">
-              List of all Cardano governance proposals from the Koios API
-            </p>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-2 h-8 bg-blue-500 rounded-full"></div>
+              <h1 className="text-4xl font-bold text-zinc-100">Cardano Governance</h1>
+            </div>
+            <div className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 rounded-xl p-6 mb-6">
+              <h2 className="text-2xl font-semibold text-zinc-200 mb-3">Proposals</h2>
+              <p className="text-zinc-400 text-lg leading-relaxed">
+                Explore and analyze all Cardano governance proposals sourced directly from the Koios API. Track proposal status, voting details, and governance decisions shaping the Cardano ecosystem.
+              </p>
+            </div>
+            <div className="flex items-center gap-4 text-sm text-zinc-500">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>Live Data</span>
+              </div>
+              <span>•</span>
+              <span>Updated every 30 minutes</span>
+              <span>•</span>
+              <span>{sortedProposals.length} proposals</span>
+            </div>
           </div>
 
           {sortedProposals.length === 0 ? (

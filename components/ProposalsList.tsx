@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
-import { XMarkIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
-import { DialogTitle } from '@radix-ui/react-dialog';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../components/ui/dialog"
+import { X, ArrowRightCircleIcon, ArrowUp } from "lucide-react"
 
 interface VotingSummary {
     proposal_type: string;
@@ -189,170 +188,150 @@ export default function ProposalsList() {
             <h3 className="text-xl font-semibold text-zinc-200">Governance Proposals</h3>
 
             {/* Voting Summary Modal */}
-            <Transition.Root show={isModalOpen} as="div">
-                <Dialog as="div" className="relative z-50" onClose={() => setIsModalOpen(false)}>
-                    <Transition.Child
-                        as="div"
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0"
-                        enterTo="opacity-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                    >
-                        <div className="fixed inset-0 bg-black/70 transition-opacity" />
-                    </Transition.Child>
-
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent>
                     <div className="fixed inset-0 z-10 overflow-y-auto">
                         <div className="flex min-h-full items-center justify-center p-4 text-center">
-                            <Transition.Child
-                                as="div"
-                                enter="ease-out duration-300"
-                                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                                enterTo="opacity-100 translate-y-0 sm:scale-100"
-                                leave="ease-in duration-200"
-                                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                            >
-                                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800/50 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl sm:p-6">
-                                    <div className="absolute right-0 top-0 pr-4 pt-4">
-                                        <button
-                                            type="button"
-                                            className="rounded-md text-zinc-400 hover:text-zinc-500"
-                                            onClick={() => setIsModalOpen(false)}
+
+                            <DialogTrigger className="relative transform overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800/50 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl sm:p-6">
+                                <div className="absolute right-0 top-0 pr-4 pt-4">
+                                    <button
+                                        type="button"
+                                        className="rounded-md text-zinc-400 hover:text-zinc-500"
+                                        onClick={() => setIsModalOpen(false)}
+                                    >
+                                        <X className="h-6 w-6" aria-hidden="true" />
+                                    </button>
+                                </div>
+
+                                <div className="sm:flex sm:items-start">
+                                    <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                                        <DialogTitle className="text-lg font-semibold leading-6 text-zinc-100">
+                                            {selectedProposal && `Proposal: ${selectedProposal.proposal_id}`}
+                                        </DialogTitle>
+
+                                        {isLoadingVotes ? (
+                                            <div className="mt-4 flex justify-center">
+                                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                                            </div>
+                                        ) : votingSummary ? (
+                                            <div className="mt-4 space-y-6">
+                                                {/* DRep Votes */}
+                                                <div>
+                                                    <h4 className="text-sm font-medium text-zinc-300 mb-2">DRep Votes</h4>
+                                                    <div className="space-y-3">
+                                                        {['yes', 'no', 'abstain'].map((type) => {
+                                                            const votes = type === 'yes' ? votingSummary.drep_yes_votes_cast :
+                                                                type === 'no' ? votingSummary.drep_no_votes_cast :
+                                                                    votingSummary.drep_abstain_votes_cast;
+                                                            const power = type === 'yes' ? votingSummary.drep_yes_vote_power :
+                                                                type === 'no' ? votingSummary.drep_no_vote_power :
+                                                                    votingSummary.drep_always_abstain_vote_power;
+                                                            const pct = type === 'yes' ? votingSummary.drep_yes_pct :
+                                                                type === 'no' ? votingSummary.drep_no_pct : 0;
+
+                                                            return (
+                                                                <div key={`drep-${type}`} className="space-y-1">
+                                                                    <div className="flex justify-between text-xs">
+                                                                        <span className="text-zinc-400 capitalize">{type} ({votes})</span>
+                                                                        <span className="text-zinc-300">{formatVotePower(power)} ₳ ({pct?.toFixed(1)}%)</span>
+                                                                    </div>
+                                                                    <div className="w-full bg-zinc-800 rounded-full h-2">
+                                                                        <div
+                                                                            className={`h-2 rounded-full ${getVoteBarColor(type as any)}`}
+                                                                            style={{ width: `${pct}%` }}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+
+                                                {/* Pool Votes */}
+                                                <div>
+                                                    <h4 className="text-sm font-medium text-zinc-300 mb-2">Pool Votes</h4>
+                                                    <div className="space-y-3">
+                                                        {['yes', 'no', 'abstain'].map((type) => {
+                                                            const votes = type === 'yes' ? votingSummary.pool_yes_votes_cast :
+                                                                type === 'no' ? votingSummary.pool_no_votes_cast :
+                                                                    votingSummary.pool_abstain_votes_cast;
+                                                            const power = type === 'yes' ? votingSummary.pool_yes_vote_power :
+                                                                type === 'no' ? votingSummary.pool_no_vote_power :
+                                                                    votingSummary.pool_passive_always_abstain_vote_power;
+                                                            const pct = type === 'yes' ? votingSummary.pool_yes_pct :
+                                                                type === 'no' ? votingSummary.pool_no_pct : 0;
+
+                                                            return (
+                                                                <div key={`pool-${type}`} className="space-y-1">
+                                                                    <div className="flex justify-between text-xs">
+                                                                        <span className="text-zinc-400 capitalize">{type} ({votes})</span>
+                                                                        <span className="text-zinc-300">{formatVotePower(power)} ₳ ({pct?.toFixed(1)}%)</span>
+                                                                    </div>
+                                                                    <div className="w-full bg-zinc-800 rounded-full h-2">
+                                                                        <div
+                                                                            className={`h-2 rounded-full ${getVoteBarColor(type as any)}`}
+                                                                            style={{ width: `${pct}%` }}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+
+                                                {/* Committee Votes */}
+                                                {(votingSummary.committee_yes_votes_cast > 0 || votingSummary.committee_no_votes_cast > 0) && (
+                                                    <div>
+                                                        <h4 className="text-sm font-medium text-zinc-300 mb-2">Committee Votes</h4>
+                                                        <div className="space-y-3">
+                                                            {['yes', 'no'].map((type) => {
+                                                                const votes = type === 'yes' ? votingSummary.committee_yes_votes_cast :
+                                                                    votingSummary.committee_no_votes_cast;
+                                                                const pct = type === 'yes' ? votingSummary.committee_yes_pct :
+                                                                    votingSummary.committee_no_pct;
+
+                                                                return (
+                                                                    <div key={`committee-${type}`} className="space-y-1">
+                                                                        <div className="flex justify-between text-xs">
+                                                                            <span className="text-zinc-400 capitalize">{type} ({votes})</span>
+                                                                            <span className="text-zinc-300">{pct?.toFixed(1)}%</span>
+                                                                        </div>
+                                                                        <div className="w-full bg-zinc-800 rounded-full h-2">
+                                                                            <div
+                                                                                className={`h-2 rounded-full ${getVoteBarColor(type as any)}`}
+                                                                                style={{ width: `${pct}%` }}
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <p className="mt-2 text-sm text-zinc-400">No voting data available for this proposal.</p>
+                                        )}
+                                    </div>
+
+                                    <div className="mt-5 sm:mt-6">
+                                        <a
+                                            href={`https://cexplorer.io/govactions/${selectedProposal?.proposal_tx_hash}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-200 shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                                         >
-                                            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                                        </button>
+                                            View on CExplorer <ArrowUp className="ml-2 h-4 w-4" />
+                                        </a>
                                     </div>
-
-                                    <div className="sm:flex sm:items-start">
-                                        <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                                            <DialogTitle className="text-lg font-semibold leading-6 text-zinc-100">
-                                                {selectedProposal && `Proposal: ${selectedProposal.proposal_id}`}
-                                            </DialogTitle>
-
-                                            {isLoadingVotes ? (
-                                                <div className="mt-4 flex justify-center">
-                                                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                                                </div>
-                                            ) : votingSummary ? (
-                                                <div className="mt-4 space-y-6">
-                                                    {/* DRep Votes */}
-                                                    <div>
-                                                        <h4 className="text-sm font-medium text-zinc-300 mb-2">DRep Votes</h4>
-                                                        <div className="space-y-3">
-                                                            {['yes', 'no', 'abstain'].map((type) => {
-                                                                const votes = type === 'yes' ? votingSummary.drep_yes_votes_cast :
-                                                                    type === 'no' ? votingSummary.drep_no_votes_cast :
-                                                                        votingSummary.drep_abstain_votes_cast;
-                                                                const power = type === 'yes' ? votingSummary.drep_yes_vote_power :
-                                                                    type === 'no' ? votingSummary.drep_no_vote_power :
-                                                                        votingSummary.drep_always_abstain_vote_power;
-                                                                const pct = type === 'yes' ? votingSummary.drep_yes_pct :
-                                                                    type === 'no' ? votingSummary.drep_no_pct : 0;
-
-                                                                return (
-                                                                    <div key={`drep-${type}`} className="space-y-1">
-                                                                        <div className="flex justify-between text-xs">
-                                                                            <span className="text-zinc-400 capitalize">{type} ({votes})</span>
-                                                                            <span className="text-zinc-300">{formatVotePower(power)} ₳ ({pct?.toFixed(1)}%)</span>
-                                                                        </div>
-                                                                        <div className="w-full bg-zinc-800 rounded-full h-2">
-                                                                            <div
-                                                                                className={`h-2 rounded-full ${getVoteBarColor(type as any)}`}
-                                                                                style={{ width: `${pct}%` }}
-                                                                            />
-                                                                        </div>
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Pool Votes */}
-                                                    <div>
-                                                        <h4 className="text-sm font-medium text-zinc-300 mb-2">Pool Votes</h4>
-                                                        <div className="space-y-3">
-                                                            {['yes', 'no', 'abstain'].map((type) => {
-                                                                const votes = type === 'yes' ? votingSummary.pool_yes_votes_cast :
-                                                                    type === 'no' ? votingSummary.pool_no_votes_cast :
-                                                                        votingSummary.pool_abstain_votes_cast;
-                                                                const power = type === 'yes' ? votingSummary.pool_yes_vote_power :
-                                                                    type === 'no' ? votingSummary.pool_no_vote_power :
-                                                                        votingSummary.pool_passive_always_abstain_vote_power;
-                                                                const pct = type === 'yes' ? votingSummary.pool_yes_pct :
-                                                                    type === 'no' ? votingSummary.pool_no_pct : 0;
-
-                                                                return (
-                                                                    <div key={`pool-${type}`} className="space-y-1">
-                                                                        <div className="flex justify-between text-xs">
-                                                                            <span className="text-zinc-400 capitalize">{type} ({votes})</span>
-                                                                            <span className="text-zinc-300">{formatVotePower(power)} ₳ ({pct?.toFixed(1)}%)</span>
-                                                                        </div>
-                                                                        <div className="w-full bg-zinc-800 rounded-full h-2">
-                                                                            <div
-                                                                                className={`h-2 rounded-full ${getVoteBarColor(type as any)}`}
-                                                                                style={{ width: `${pct}%` }}
-                                                                            />
-                                                                        </div>
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Committee Votes */}
-                                                    {(votingSummary.committee_yes_votes_cast > 0 || votingSummary.committee_no_votes_cast > 0) && (
-                                                        <div>
-                                                            <h4 className="text-sm font-medium text-zinc-300 mb-2">Committee Votes</h4>
-                                                            <div className="space-y-3">
-                                                                {['yes', 'no'].map((type) => {
-                                                                    const votes = type === 'yes' ? votingSummary.committee_yes_votes_cast :
-                                                                        votingSummary.committee_no_votes_cast;
-                                                                    const pct = type === 'yes' ? votingSummary.committee_yes_pct :
-                                                                        votingSummary.committee_no_pct;
-
-                                                                    return (
-                                                                        <div key={`committee-${type}`} className="space-y-1">
-                                                                            <div className="flex justify-between text-xs">
-                                                                                <span className="text-zinc-400 capitalize">{type} ({votes})</span>
-                                                                                <span className="text-zinc-300">{pct?.toFixed(1)}%</span>
-                                                                            </div>
-                                                                            <div className="w-full bg-zinc-800 rounded-full h-2">
-                                                                                <div
-                                                                                    className={`h-2 rounded-full ${getVoteBarColor(type as any)}`}
-                                                                                    style={{ width: `${pct}%` }}
-                                                                                />
-                                                                            </div>
-                                                                        </div>
-                                                                    );
-                                                                })}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <p className="mt-2 text-sm text-zinc-400">No voting data available for this proposal.</p>
-                                            )}
-                                        </div>
-
-                                        <div className="mt-5 sm:mt-6">
-                                            <a
-                                                href={`https://cexplorer.io/govactions/${selectedProposal?.proposal_tx_hash}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-200 shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                                            >
-                                                View on CExplorer <ArrowTopRightOnSquareIcon className="ml-2 h-4 w-4" />
-                                            </a>
-                                        </div>
-                                    </div>
-                                </Dialog.Panel>
-                            </Transition.Child>
+                                </div>
+                            </DialogTrigger>
                         </div>
                     </div>
-                </Dialog>
-            </Transition.Root>
+                </DialogContent>
+            </Dialog>
+
 
             <div className="overflow-x-auto rounded-lg border border-zinc-800/30">
                 <table className="min-w-full divide-y divide-zinc-700">
