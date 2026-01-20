@@ -78,10 +78,10 @@ export default function VotingSummaryDialog({ metadata, proposalId, proposalType
                     {truncateHash(proposalId)}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="min-w-3xl max-w-7xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className="min-w-[98%]! md:min-w-[98%]! lg:min-w-5xl! max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                     <div className="flex flex-col space-y-2">
-                        <DialogTitle className="text-lg font-semibold break-words">
+                        <DialogTitle className="text-lg font-semibold wrap-break-word">
                             gov_action1{proposalId.slice(11, 22)}...{proposalId.slice(proposalId.length - 10, proposalId.length)}
                         </DialogTitle>
                         <div className="flex items-center gap-2 flex-wrap">

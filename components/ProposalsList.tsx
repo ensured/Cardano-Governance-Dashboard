@@ -333,44 +333,44 @@ export default function ProposalsList() {
             </Dialog>
 
 
-            <div className="overflow-x-auto rounded-lg border border-zinc-800/30">
-                <table className="min-w-full divide-y divide-zinc-700">
-                    <thead className="bg-zinc-800/50">
+            <div className="overflow-x-auto rounded-xl border border-zinc-800/30 shadow-lg shadow-zinc-900/20 backdrop-blur-sm bg-zinc-900/20">
+                <table className="min-w-[900px] divide-y divide-zinc-700/50">
+                    <thead className="bg-gradient-to-r from-zinc-800/60 to-zinc-800/40 backdrop-blur-sm sticky top-0 z-10">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-300 uppercase tracking-wider border-b border-zinc-700/50">
                                 ID
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-300 uppercase tracking-wider border-b border-zinc-700/50">
                                 Type
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-300 uppercase tracking-wider border-b border-zinc-700/50">
                                 Status
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-300 uppercase tracking-wider border-b border-zinc-700/50">
                                 Proposed
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-zinc-300 uppercase tracking-wider border-b border-zinc-700/50">
                                 Expires
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="bg-zinc-900/50 divide-y divide-zinc-800">
+                    <tbody className="divide-y divide-zinc-700/30 bg-zinc-900/30">
                         {proposals.map((proposal, index) => (
                             <tr
                                 key={proposal.proposal_id}
                                 className="hover:bg-zinc-800/30 transition-colors duration-150 cursor-pointer"
                                 onClick={() => handleProposalClick(proposal)}
                             >
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-200">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-200 border-b border-zinc-700/20">
                                     <div className="flex items-center space-x-2">
                                         <span className="text-zinc-400">#{index + 1}</span>
                                         <span className="truncate max-w-xs">{proposal.proposal_id}</span>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 border-b border-zinc-700/20">
                                     {getProposalType(proposal.proposal_type)}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                <td className="px-6 py-4 whitespace-nowrap border-b border-zinc-700/20">
                                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${proposal.enacted_epoch
                                         ? 'bg-green-900/30 text-green-400 border border-green-500/30'
                                         : proposal.expired_epoch || proposal.dropped_epoch
@@ -390,10 +390,10 @@ export default function ProposalsList() {
                                                         : 'Pending'}
                                     </span>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-400">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 border-b border-zinc-700/20">
                                     Epoch {proposal.proposed_epoch}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-400">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 border-b border-zinc-700/20">
                                     Epoch {proposal.expiration}
                                 </td>
                             </tr>

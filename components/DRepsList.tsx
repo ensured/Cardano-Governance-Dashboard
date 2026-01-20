@@ -45,36 +45,36 @@ export default function DRepsList({ dReps, error = null }: DRepsListProps) {
     return (
         <>
             <div className='flex justify-center items-center text-black/70 font-sans text-xs'> Found {dReps.length} DReps</div>
-            <div className="overflow-x-auto rounded-lg border border-zinc-800/30 max-h-[69vh] overflow-y-auto">
-                <table className="min-w-full divide-y divide-zinc-700">
-                    <thead className="bg-zinc-800/50">
-                        <tr className="hover:bg-zinc-800/30 transition-colors duration-150">
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
+            <div className="overflow-x-auto rounded-xl border border-zinc-800/30 max-h-[69vh] overflow-y-auto shadow-lg shadow-zinc-900/20 backdrop-blur-sm bg-zinc-900/20">
+                <table className="min-w-[800px] divide-y divide-zinc-700/50">
+                    <thead className="bg-gradient-to-r from-zinc-800/60 to-zinc-800/40 backdrop-blur-sm sticky top-0 z-10">
+                        <tr className="hover:bg-zinc-700/30 transition-all duration-200">
+                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-zinc-300 uppercase tracking-wider border-b border-zinc-700/50">
                                 DRep ID
                             </th>
 
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
+                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-zinc-300 uppercase tracking-wider border-b border-zinc-700/50">
                                 Has Script
                             </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
+                            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-zinc-300 uppercase tracking-wider border-b border-zinc-700/50">
                                 Status
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="bg-zinc-900/50 divide-y divide-zinc-800">
+                    <tbody className="divide-y divide-zinc-700/30 bg-zinc-900/30">
                         {dReps.map((drep, index) => (
-                            <tr key={index} className={index % 2 === 0 ? 'bg-zinc-900/20' : 'bg-zinc-900/10'} >
-                                <td className="px-6 py-4 whitespace-nowrap text-xs font-medium text-zinc-200">
+                            <tr key={index} className={index % 2 === 0 ? 'bg-zinc-900/20 hover:bg-zinc-800/40' : 'bg-zinc-800/10 hover:bg-zinc-700/30'} >
+                                <td className="px-6 py-4 whitespace-nowrap text-xs font-medium text-zinc-200 border-b border-zinc-700/20">
                                     {drep.drep_id}
                                 </td>
 
-                                <td className="px-6 py-4 whitespace-nowrap text-xs font-medium text-zinc-200">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${drep.has_script ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                <td className="px-6 py-4 whitespace-nowrap text-xs font-medium text-zinc-200 border-b border-zinc-700/20">
+                                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${drep.has_script ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-red-500/20 text-red-300 border-red-500/30'}`}>
                                         {drep.has_script ? 'Yes' : 'No'}
                                     </span>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-xs font-medium text-zinc-200">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${drep.registered ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                <td className="px-6 py-4 whitespace-nowrap text-xs font-medium text-zinc-200 border-b border-zinc-700/20">
+                                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${drep.registered ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'}`}>
                                         {drep.registered ? 'Active' : 'Inactive'}
                                     </span>
                                 </td>
