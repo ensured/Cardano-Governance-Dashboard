@@ -56,6 +56,34 @@ async function getProposals(): Promise<Proposal[]> {
   }
 }
 
+async function getCurrentEpoch(): Promise<number> {
+  try {
+    const headers: HeadersInit = {
+      'accept': 'application/json',
+    };
+
+    // Only add authorization header if API key is available
+    if (process.env.KOIOS_API_KEY) {
+      headers['authorization'] = process.env.KOIOS_API_KEY;
+    }
+
+    const response = await fetch('https://api.koios.rest/api/v1/tip', {
+      next: { revalidate: 86400 }, // Cache for 24 hours
+      headers
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data[0]?.epoch_no || 0;
+  } catch (error) {
+    console.error('Failed to fetch current epoch:', error);
+    return 0;
+  }
+}
+
 function formatDate(timestamp: number) {
   return new Date(timestamp * 1000).toLocaleDateString();
 }
@@ -98,16 +126,17 @@ function sortProposals(proposals: Proposal[]): Proposal[] {
 
 export default async function ProposalsPage() {
   const proposals = await getProposals();
+  const currentEpoch = await getCurrentEpoch();
   const sortedProposals = sortProposals(proposals);
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-950">
 
-      <main className="flex-grow pt-16 px-5">
+      <main className="grow pt-8 px-5">
 
-        <div className="max-w-7xl mx-auto py-8">
+        <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4">
               <div className="w-2 h-8 bg-blue-500 rounded-full"></div>
               <h1 className="text-4xl font-bold text-zinc-100">Cardano Governance</h1>
             </div>
@@ -117,15 +146,22 @@ export default async function ProposalsPage() {
                 Explore and analyze all Cardano governance proposals sourced directly from the Koios API. Track proposal status, voting details, and governance decisions shaping the Cardano ecosystem.
               </p>
             </div>
-            <div className="flex items-center gap-4 text-sm text-zinc-500">
+            <div className="flex items-center gap-4 text-sm text-zinc-500 justify-around border border-border rounded-lg p-2">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Live Data</span>
+                <div className="w-2 h-2 bg-green-500 rounded-full "></div>
+                <span>Data Updated every 30 minutes</span>
               </div>
-              <span>•</span>
-              <span>Updated every 30 minutes</span>
-              <span>•</span>
-              <span>{sortedProposals.length} proposals</span>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full "></div>
+                <span>{sortedProposals.length} proposals</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full "></div>
+
+                <span>Current Epoch: {currentEpoch}</span>
+              </div>
+
+
             </div>
           </div>
 
@@ -145,6 +181,7 @@ export default async function ProposalsPage() {
                     <th className="text-left py-3 px-4 font-medium text-zinc-300 z-40">Deposit</th>
                     <th className="text-left py-3 px-4 font-medium text-zinc-300 z-40">Return Address</th>
                     <th className="text-left py-3 px-4 font-medium text-zinc-300 z-40">Block Time</th>
+                    <th className="text-left py-3 px-4 font-medium text-zinc-300 z-40">Expires</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -200,6 +237,9 @@ export default async function ProposalsPage() {
                       </td>
                       <td className="py-3 px-4 text-zinc-300">
                         {proposal.block_time ? formatDate(proposal.block_time) : 'N/A'}
+                      </td>
+                      <td className="py-3 px-4 text-zinc-300">
+                        Epoch {proposal.expiration}
                       </td>
                     </tr>
                   ))}
